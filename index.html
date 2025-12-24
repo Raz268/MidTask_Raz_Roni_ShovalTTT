@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>משימות עבודה - תרגול תפקודים ניהוליים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap בגרסת RTL: מאפשר תמיכה מובנית בעיצוב מימין לשמאל (יישורים, מרווחים, ניווט וכו') -->
+    <link href="styles/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="styles/myStyle.css" rel="stylesheet" />
+
+    <!-- bootstrap.bundle כולל גם Popper, מה שנדרש לרכיבי Bootstrap אינטראקטיביים (Modal, Collapse, Dropdown וכו') -->
+    <!-- defer: הסקריפט נטען במקביל ל-HTML ומורץ רק אחרי שהדף נבנה, כדי למנוע שגיאות של אלמנטים שלא קיימים עדיין -->
+    <script src="jScripts/bootstrap.bundle.min.js" defer></script>
+
+    <!-- SCORM_API_wrapper: "עטיפה" שמספקת פונקציות סטנדרטיות לתקשורת עם LMS (מערכת למידה) לפי SCORM -->
+    <!-- לרוב כולל פעולות כמו Initialize, GetValue, SetValue, Commit, Terminate -->
+    <script src="SCORM_API_wrapper.js"></script>
+
+    <!-- scorm.js: הלוגיקה שלכם שמגדירה מה לשמור ל-LMS (למשל התקדמות, ציון, completion_status, זמן וכו') -->
+    <script src="scorm.js" defer></script>
+
+    <!-- javascript.js: קוד האפליקציה (חיפוש, טעינת תפקידים, פתיחת מודאלים, טיפול בשליחת הסקר וכו') -->
+    <script src="jScripts/javascript.js" defer></script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">פרויקט יויה</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapse של Bootstrap: נפתח/נסגר במובייל ע"י data-bs-toggle + data-bs-target -->
+            <div class="collapse navbar-collapse" id="mainNav">
+                <!-- me-auto ב-RTL: Bootstrap RTL “מתרגם” את ההיגיון של מרווחים כך שהיישור יתאים לכיוון הדף -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" href="#home">בית</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#jobs">משימות</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#survey">סקר</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero text-white text-center py-5" id="home">
+        <div class="container py-5">
+            <h1 class="display-4 fw-bold">משימות עבודה</h1>
+            <p class="lead">פלטפורמה לתרגול תפקודים ניהוליים</p>
+        </div>
+    </header>
+
+    <section class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <!-- נקודות חיבור ל-JS: searchInput + searchBtn משמשים להפעלת חיפוש וסינון התפקידים -->
+                    <input type="text" id="searchInput" class="form-control" placeholder="חפש תפקיד...">
+                    <button id="searchBtn" class="btn btn-primary">חפש</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ <main class="container mb-5" id="jobs">
+    <!-- jobsContainer: מיכל "דינמי" – כאן ה-JS מזריק/יוצר כרטיסים או רכיבים של תפקידים/משימות -->
+    <div id="jobsContainer">
+        </div>
+
+    <!-- noResults: מוסתר כברירת מחדל עם d-none. ה-JS מסיר/מחזיר d-none לפי תוצאות החיפוש -->
+    <div id="noResults" class="text-center mt-5 d-none">
+        <h3 class="text-muted">לא נמצאו תפקידים תואמים </h3>
+        <p>נסה לחפש מילת מפתח אחרת או לבדוק את האיות.</p>
+    </div>
+</main>
+
+    <section id="survey" class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h4 mb-0 text-center">סקר העדפות</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- surveyForm: טופס שנלכד ב-JS (submit event) כדי לבצע ולידציה/שליחה/שמירה (ואפשר גם SCORM) -->
+                        <form id="surveyForm">
+                            <div class="mb-3">
+                                <label class="form-label">תחום עבודה</label>
+                                <!-- required: ולידציה בסיסית בדפדפן לפני submit -->
+                                <select id="workField" class="form-select" required>
+                                    <option value="">בחר...</option>
+                                    <option value="מזון">מזון</option>
+                                    <option value="קמעונאות">קמעונאות</option>
+                                    <option value="שירות">שירות</option>
+                                    <option value="ייצור">ייצור</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">תפקיד מועדף</label>
+                                <select id="preferredJob" class="form-select" required>
+                                    <option value="">בחר...</option>
+                                    <option value="מלצר">מלצר/ית</option>
+                                    <option value="מדפיס">מדפיס/ה</option>
+                                    <option value="מחסנאי">מחסנאי/ת</option>
+                                    <option value="ברסטה">ברסטה</option>
+                                    <option value="ניקיון">עובד/ת ניקיון</option>
+                                    <option value="קופאי">קופאי/ת</option>
+                                    <option value="ייצור">פועל/ת ייצור</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">ניסיון קודם</label>
+                                <select id="experienceLevel" class="form-select" required>
+                                    <option value="">בחר...</option>
+                                    <option value="מתחיל">מתחיל</option>
+                                    <option value="בינוני">בינוני</option>
+                                    <option value="מתקדם">מתקדם</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">האם יש לך ניסיון?</label>
+                                <!-- radio עם required: חייבים לבחור אחת מהאופציות לפני שליחה -->
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="hasExperience" value="yes" required>
+                                    <label class="form-check-label">כן</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="hasExperience" value="no" required>
+                                    <label class="form-check-label">לא</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">הערות</label>
+                                <textarea id="additionalComments" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 fw-bold">שלח סקר</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- successModal: מודאל Bootstrap שמוצג לאחר submit מוצלח (לרוב מופעל דרך JS: new bootstrap.Modal(...).show()) -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header bg-success text-white justify-content-center">
+                    <h5 class="modal-title">תודה רבה!</h5>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="fs-5 mb-0">הסקר נשלח בהצלחה למערכת.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <!-- data-bs-dismiss: סוגר את המודאל ללא JS ידני -->
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">סגור</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- infoModal: מודאל “כללי” עם כותרת/תוכן דינמי (modalTitle, modalBody) שה-JS יכול למלא לפי תפקיד/משימה -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalTitle">כותרת</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- modalBody: מקום שממולא דינמית (טקסט/HTML) להצגת פרטי משימה/הנחיות/הסבר וכו' -->
+            <div class="modal-body" id="modalBody">
+              </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">סגור</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-4">
+        <p class="mb-0">2025 פרויקט יויה - תרגול תפקודים ניהוליים</p>
+    </footer>
+
+</body>
+</html>
